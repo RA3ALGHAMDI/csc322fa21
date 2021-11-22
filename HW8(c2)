@@ -1,0 +1,96 @@
+
+// import THREE
+import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js';
+// import Orbit controls
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+
+
+// create a render and set the size
+var renderer = new THREE.WebGLRenderer();
+renderer.setClearColor(new THREE.Color(0x127986));
+renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
+
+// create a camera, which defines where we're looking at.
+var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+// create a scene, that will hold all our elements such as objects, cameras and lights.
+var scene = new THREE.Scene();
+
+
+// show axes in the screen
+var axes = new THREE.AxesHelper(20);
+scene.add(axes);
+
+
+const vertices = [
+ -0.5,-0.5,0.5,    0.5,0.5,0.5,   -0.5, 0.5,0.5,    0.5, -0.5,0.5,    0.5,0.5,-0.5,    0.5,-0.5,-0.5,    -0.5,0.5,-0.5,    -0.5,-0.5,-0.5
+];
+
+const indicesOfFaces = [
+    0,1,2,    1,0,3,
+    4,1,5,		5,3,1,
+    6,4,5,		7,6,5,
+    7,0,6,		0,2,6,
+    1,4,6,		1,6,2,
+    3,5,0,		7,5,0
+];
+
+// 1 is the radius, 0 is the LOD
+const geometry = new THREE.PolyhedronGeometry( vertices, indicesOfFaces, 1, 0 );
+// compute vertex normals
+geometry.computeVertexNormals ();
+
+const material = new THREE.MeshNormalMaterial();
+
+//const sphereMaterial = new THREE.MeshPhongMaterial({color: '#8AC'});
+const mesh = new THREE.Mesh( geometry, material );
+mesh.position.set(2,0,0); //set position of object
+scene.add( mesh );
+
+//add wireframe of the sphere
+const wireframe = new THREE.WireframeGeometry( geometry );
+const sline = new THREE.LineSegments( wireframe );
+sline.material.depthTest = false;
+sline.material.opacity = 0.25;
+sline.material.transparent = true;
+sline.position.set(0,0,0); //set position of object
+scene.add( sline );
+
+
+// position and point the camera to the center of the scene
+//camera.position.set(30, 0, 0); //looking down along x-direction
+//camera.position.set(0, 30, 0); //looking down along y-direction
+camera.position.set(0, 0, 10); //looking down along z-direction
+
+
+// import Orbit controls
+var controls = new OrbitControls (camera, renderer.domElement);
+
+// add ambient light
+var color = 0xbfe0e6;
+var intensity = 10;
+var light = new THREE.AmbientLight(color, intensity);
+scene.add(light);
+
+// add target light
+const color2 = 0xbfe0e6;
+const intensity2 = 1;
+const light2 = new THREE.DirectionalLight(color2, intensity2);
+light2.position.set(0, 0, 10);
+light2.target.position.set(-5, 0, 0);
+scene.add(light2);
+scene.add(light2.target);
+
+// render the scene
+//renderer.render( scene, camera );
+//controls.update();
+
+// render the scene
+var animate = function(){
+	requestAnimationFrame(animate);
+	renderer.render( scene, camera );
+  controls.update();
+}
+
+animate();
